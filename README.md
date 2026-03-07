@@ -15,7 +15,7 @@ Requisitos
 
 - Python 3.12 (recomendado, consistente con el `venv` existente).
 - Dependencias de `requirements.txt`.
-- Variable de entorno `OPENAI_API_KEY` con una clave válida de OpenAI.
+- Una clave válida de OpenAI configurada como `OPENAI_API_KEY` (ver “Secrets”).
 
 Instalación rápida
 ------------------
@@ -28,16 +28,34 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Ejecución (CLI)
----------------
+Secrets (OPENAI_API_KEY)
+------------------------
+
+Este proyecto **no guarda claves en archivos del repo**. Hay dos formas recomendadas:
+
+1) Variable de entorno (local)
 
 ```bash
 export OPENAI_API_KEY="TU_OPENAI_API_KEY_AQUI"
+```
+
+2) Secrets de Streamlit (local o deploy)
+
+- Crea el archivo `.streamlit/secrets.toml` (este archivo está ignorado por git):
+
+```toml
+OPENAI_API_KEY = "TU_OPENAI_API_KEY_AQUI"
+```
+
+Ejecución (Streamlit)
+---------------------
+
+```bash
 ./run.sh
 ```
 
-Luego escribe tus preguntas sobre normativa tributaria colombiana,
-por ejemplo:
+La app abrirá (o te mostrará) una URL local, típicamente `http://localhost:8501`.
+Luego escribe tus preguntas sobre normativa tributaria colombiana, por ejemplo:
 
 ```text
 ¿Cómo se determina la renta bruta en la enajenación de activos según el artículo 90?
@@ -62,4 +80,11 @@ python diagnostico.py "pregunta sobre el artículo 90 del Estatuto Tributario"
 
 Esto ayuda a ajustar el umbral de similitud definido en `config.py`
 (`SIMILARITY_THRESHOLD`).
+
+Indexación desde la app
+-----------------------
+
+En la barra lateral puedes **subir documentos (`.pdf` / `.txt`)** y presionar
+“Indexar documentos” para añadirlos al índice existente (`vectorstore/article_index.json`).
+
 
