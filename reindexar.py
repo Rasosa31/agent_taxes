@@ -122,3 +122,70 @@ def update_index_with_uploads(
 
     return {"n_files": n_files, "n_chunks": n_chunks}
 
+def get_all_files(index_path: Path | None = None, docs_dir: Path | str = "documentos") -> List[str]:
+    """
+    Retorna la lista de archivos disponibles tanto en la carpeta de documentos
+    como en el índice actual.
+    """
+    index_path = index_path or INDEX_PATH
+    index = _load_index(index_path)
+
+    files = set()
+    # 1. Escanear carpeta de documentos físicos
+    docs_path = Path(docs_dir)
+    if docs_path.is_dir():
+        for file in docs_path.iterdir():
+            if file.is_file() and not file.name.startswith("."):
+                files.add(file.name)
+
+    # 2. Escanear el índice JSON por "source"
+    for bucket in index.values():
+        for entry in bucket:
+            source = entry.get("source")
+            if source:
+                files.add(source)
+
+    return sorted(list(files))
+
+def delete_specific_files(filenames: List[str], index_path: Path | None = None, docs_dir: Path | str = "documentos") -> Dict[str, Any]:
+    """
+    Elimina archivos de forma física de la carpeta de documentos y/o del índice.
+    """
+    index_path = index_path or INDEX_PATH
+    index = _load_index(index_path)
+
+    removed_files_physical = 0
+    removed_chunks = 0
+    
+    # 1. Eliminar archivos físicos
+    docs_path = Path(docs_dir)
+    if docs_path.is_dir():
+        for fname in filenames:
+            file_path = docs_path / fname
+            if file_path.is_file():
+                try:
+                    file_path.unlink()
+                    removed_files_physical += 1
+                except Exception:
+                    pass
+                
+    # 2. Eliminar del índice (cualquier fragmento cuyo "source" esté en la lista)
+    keys_to_remove = []
+    for k, bucket in index.items():
+        # Filtrar bucket para mantener solo las entradas que NO tengan un source a borrar
+        new_bucket = [e for e in bucket if e.get("source") not in filenames]
+        removed_chunks += len(bucket) - len(new_bucket)
+        
+        if not new_bucket:
+            keys_to_remove.append(k)
+        else:
+            index[k] = new_bucket
+
+    for k in keys_to_remove:
+        del index[k]
+
+    if removed_chunks > 0:
+        _save_index(index, index_path)
+
+    return {"removed_physical": removed_files_physical, "removed_chunks": removed_chunks}
+

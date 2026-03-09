@@ -68,23 +68,12 @@ los documentos indexados, responderá exactamente:
 No encuentro esta información en los documentos indexados.
 ```
 
-Diagnóstico de recuperación
----------------------------
-
-Para inspeccionar qué fragmentos se están recuperando y sus
-similitudes, puedes ejecutar:
-
-```bash
-python diagnostico.py "pregunta sobre el artículo 90 del Estatuto Tributario"
-```
-
-Esto ayuda a ajustar el umbral de similitud definido en `config.py`
-(`SIMILARITY_THRESHOLD`).
-
 Indexación desde la app
 -----------------------
 
 En la barra lateral puedes **subir documentos (`.pdf` / `.txt`)** y presionar
 “Indexar documentos” para añadirlos al índice existente (`vectorstore/article_index.json`).
+
+Además, en la pestaña **Gestionar Archivos**, puedes revisar qué archivos tienes almacenados localmente y eliminarlos, lo que actualizará tu base de datos y limpiará recursos innecesarios.
 
 
