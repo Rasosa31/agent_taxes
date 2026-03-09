@@ -2,22 +2,29 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
 
-# Ruta al índice de fragmentos de normativa
+# Rutas y modelos
 INDEX_PATH: Path = BASE_DIR / "vectorstore" / "article_index.json"
+EMBEDDING_MODEL_NAME: str = "intfloat/multilingual-e5-small"
+RERANKER_MODEL_NAME: str = "BAAI/bge-reranker-v2-m3"
 
-# Modelo de embeddings para búsqueda semántica
-EMBEDDING_MODEL_NAME: str = "sentence-transformers/all-MiniLM-L6-v2"
+# Modelo de Tokenización
+TOKENIZER_MODEL: str = "cl100k_base"  # Modelo de OpenAI usado por tiktoken
 
-# Número máximo de fragmentos recuperados para una pregunta
-# (más fragmentos ayudan a que el LLM vea artículos clave como el 240)
-TOP_K: int = 10
+# Parámetros de Búsqueda
+# Número de fragmentos a recuperar en la fase inicial (Vector + BM25)
+INITIAL_TOP_K: int = 20
+# Número final de fragmentos tras el re-ranking
+TOP_K: int = 5
 
-# Umbral mínimo de similitud coseno para considerar que
-# "hay información suficiente" en los documentos.
-SIMILARITY_THRESHOLD: float = 0.45
+# Pesos para la búsqueda híbrida (opcional si se usa Reciprocal Rank Fusion, 
+# pero útil para combinación lineal simple)
+VECTOR_WEIGHT: float = 0.5
+BM25_WEIGHT: float = 0.5
 
-# Modelo de lenguaje a usar para la respuesta final.
-# Debes tener configurada la variable de entorno OPENAI_API_KEY.
-OPENAI_MODEL: str = "gpt-4.1-mini"
+# Umbral mínimo de similitud coseno (ya no se usa estrictamente igual tras el re-ranking, 
+# pero puede aplicar a la puntuación final)
+SIMILARITY_THRESHOLD: float = 0.0
 
+# Modelo LLM
+OPENAI_MODEL: str = "gpt-4o-mini"
 
